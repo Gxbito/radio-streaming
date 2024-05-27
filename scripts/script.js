@@ -3,17 +3,12 @@ import articles from "./data.js";
 function createArticleCards(articles) {
   const container = document.getElementById("articles");
   articles.forEach((article) => {
-    // Limitar la longitud del título a 16 caracteres
-    const shortenedTitle =
-      article.title.length > 16
-        ? article.title.substring(0, 60) + "..."
-        : article.title;
 
     const cardHTML = `
             <div class="article">
                 <img src="${article.image}" alt="" />
                 <div class="text">
-                    <h4>${shortenedTitle}</h4>
+                    <h4>${article.title}</h4>
                     <a href="${article.link}">Read more</a>
                     <span></span>
                     <h6>Published on 25 May 2024</h6>
@@ -42,23 +37,32 @@ document
       ],
     };
 
-    fetch(
-      "https://api.hsforms.com/submissions/v3/integration/submit/example_ID/example_ID",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    )
-      .then((response) => response.json())
+    // Validación básica de ejemplo
+    if (!formData.get("firstName") || !formData.get("lastName") || !formData.get("email")) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    fetch("https://api.hsforms.com/submissions/v3/integration/submit/example_ID/example_ID", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+      })
       .then((data) => {
         console.log("Success:", data);
         alert("Form successfully submitted!");
+        event.target.reset(); // Limpia el formulario después de enviarlo
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("There was an error submitting the form.");
+        alert("There was an error submitting the form: " + error.message);
       });
   });
